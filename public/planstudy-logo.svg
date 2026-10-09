@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 120" width="620" height="120" role="img" aria-label="PlanStudy">
+  <g transform="translate(12 12)">
+    <rect x="18" y="0" width="54" height="54" rx="16" fill="#C7D2FE"/>
+    <rect x="0" y="18" width="54" height="54" rx="16" fill="#4F46E5"/>
+    <path d="M16 46 L29 59 L52 34" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="128" y="88" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="80" font-weight="700" letter-spacing="-2" fill="#0F172A">PlanStudy</text>
+</svg> 
