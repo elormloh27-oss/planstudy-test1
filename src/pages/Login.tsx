@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient'
+import { friendlyAuthErrorMessage } from '@/lib/authErrors'
 import { useToast } from '@/components/Toast'
 
 export default function Login() {
@@ -12,6 +13,7 @@ export default function Login() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (busy) return
     if (!isSupabaseConfigured) {
       navigate('/dashboard')
       return
@@ -20,7 +22,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setBusy(false)
     if (error) {
-      push(error.message)
+      push(friendlyAuthErrorMessage(error))
       return
     }
     navigate('/dashboard')
