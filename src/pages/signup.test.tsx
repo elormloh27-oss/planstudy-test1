@@ -4,13 +4,14 @@ import { MemoryRouter } from 'react-router-dom'
 import Signup from '@/pages/Signup'
 import { ToastProvider } from '@/components/Toast'
 
-const { mockSignUp, mockNavigate } = vi.hoisted(() => ({
+const { mockSignUp, mockResend, mockNavigate } = vi.hoisted(() => ({
   mockSignUp: vi.fn(),
+  mockResend: vi.fn(),
   mockNavigate: vi.fn(),
 }))
 
 vi.mock('@/lib/supabaseClient', () => ({
-  supabase: { auth: { signUp: mockSignUp } },
+  supabase: { auth: { signUp: mockSignUp, resend: mockResend } },
   isSupabaseConfigured: true,
 }))
 
@@ -38,6 +39,7 @@ function renderSignup() {
 
 beforeEach(() => {
   mockSignUp.mockReset()
+  mockResend.mockReset()
   mockNavigate.mockReset()
 })
 
@@ -87,5 +89,22 @@ describe('Signup', () => {
       await new Promise((r) => setTimeout(r, 50))
     })
     await waitFor(() => expect(mockNavigate).not.toHaveBeenCalledWith('/dashboard'))
+  })
+
+  it('resends the confirmation email from the needsConfirm panel', async () => {
+    mockSignUp.mockResolvedValue({
+      data: { session: null, user: { id: 'user-1' } },
+      error: null,
+    })
+    mockResend.mockResolvedValue({ data: {}, error: null })
+    const { form } = renderSignup()
+    fireEvent.submit(form)
+
+    const resendBtn = await screen.findByRole('button', { name: /resend confirmation email/i })
+    fireEvent.click(resendBtn)
+
+    await waitFor(() => expect(mockResend).toHaveBeenCalledTimes(1))
+    expect(mockResend).toHaveBeenCalledWith({ type: 'signup', email: 'test@example.com' })
+    expect(await screen.findByText('Confirmation email resent. Check your inbox.')).toBeInTheDocument()
   })
 })
