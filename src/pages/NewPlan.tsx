@@ -68,6 +68,7 @@ export default function NewPlan() {
 
   async function onGenerate(e: React.FormEvent) {
     e.preventDefault()
+    if (busy) return
     setBusy(true)
     try {
       const res = await generatePlan({ subject, topics, deadline, hoursPerDay: Number(hours) })
