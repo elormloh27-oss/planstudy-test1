@@ -82,6 +82,10 @@ describe('Signup', () => {
     fireEvent.submit(form)
 
     await waitFor(() => expect(mockSignUp).toHaveBeenCalledTimes(1))
-    expect(mockNavigate).not.toHaveBeenCalledWith('/dashboard')
+    // Settle to allow any delayed navigate to fire pre-fix; post-fix nothing fires.
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 50))
+    })
+    await waitFor(() => expect(mockNavigate).not.toHaveBeenCalledWith('/dashboard'))
   })
 })

@@ -29,19 +29,22 @@ const FALLBACK_MESSAGE = 'Something went wrong. Please try again.'
  * case-insensitive message substring. Falls back to the raw message,
  * or a generic message when there is none.
  */
-export function friendlyAuthErrorMessage(err: AuthErrorLike | null | undefined): string {
-  if (!err) return FALLBACK_MESSAGE
-  const code = typeof err.code === 'string' ? err.code : ''
-  const msg = typeof err.message === 'string' ? err.message.toLowerCase() : ''
-  if (code === 'over_email_send_rate_limit' || err.status === 429 || msg.includes('rate limit')) {
+export function friendlyAuthErrorMessage(err: unknown): string {
+  if (!err || typeof err !== 'object') return FALLBACK_MESSAGE
+  const e = err as { message?: unknown; status?: unknown; code?: unknown }
+  const code = typeof e.code === 'string' ? e.code : ''
+  const rawMessage = typeof e.message === 'string' ? e.message : ''
+  const msg = rawMessage.toLowerCase()
+  if (isRateLimitError(err)) {
     return RATE_LIMIT_MESSAGE
   }
+  // UX-first: prefer helpful login nudge on ambiguous matches.
   if (code === 'user_already_exists' || msg.includes('already registered') || msg.includes('already exists')) {
     return ALREADY_REGISTERED_MESSAGE
   }
-  if (msg.includes('not confirmed') || msg.includes('email not confirmed')) {
+  if (msg.includes('not confirmed')) {
     return NOT_CONFIRMED_MESSAGE
   }
-  if (err.message) return err.message
+  if (rawMessage) return rawMessage
   return FALLBACK_MESSAGE
 }
